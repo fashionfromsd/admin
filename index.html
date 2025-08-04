@@ -267,8 +267,8 @@ ul li:nth-child(7) button:hover { background: #bdbdbd; }
     const menFashion = ["T-Shirts","Shirts","Polo Shirts","Panjabi","Jeans","Trousers","Joggers","Shorts","Jackets","Blazers","Hoodies","Sweaters","Vests","Innerwear","Pajamas","Suits","Sherwani","Waistcoats","Caps & Hats","Sunglasses","Watches","Belts","Wallets","Ties & Bow Ties","Shoes","Sandals","Loafers","Sneakers","Formal Shoes","Boots"];
     const womenFashion = ["Sarees","Salwar Kameez","Kurtis","Tops & Tunics","T-Shirts","Shirts","Blouses","Gowns","Maxi Dresses","Skirts","Jeans","Palazzo Pants","Leggings","Trousers","Jackets","Hoodies","Sweaters","Shrugs","Nightwear","Lingerie","Hijabs & Scarves","Abayas","Dupattas","Bags & Purses","Clutches","Handbags","Jewelry Sets","Earrings","Necklaces","Bracelets","Bangles","Rings","Watches","Sunglasses","Belts","Shoes","Sandals","Heels","Flats","Wedges","Boots"];
 
-    // Back button handling
-window.onpopstate = function() {
+// Back button handling
+window.onpopstate = function () {
   handleBack();
 };
 
@@ -281,16 +281,16 @@ function handleBack() {
     if (confirm("আপনি কি অ্যাডমিন প্যানেল থেকে বের হতে চান?")) {
       logoutAdmin();
     } else {
-      // কিছু না করলে আগের অবস্থায় থাকবে
       history.pushState(null, null, location.href);
     }
   } else if (!loginVisible) {
-    // অন্য কোনো সেকশনে থাকলে শুধু ড্যাশবোর্ডে নিয়ে আসবে
+    // অন্য সেকশনে থাকলে শুধু ড্যাশবোর্ডে নিয়ে আসবে
     backToDashboard();
+    history.pushState(null, null, location.href); // প্রতিবার আবার pushState বসানো
   }
 }
 
-// লগইন সফল হলে history push করো যাতে ব্যাক বোতাম কাজ করে
+// লগইন সফল হলে history push করো
 function loginAdmin() {
   const username = document.getElementById('login-username').value.trim();
   const password = document.getElementById('login-password').value.trim();
@@ -299,12 +299,13 @@ function loginAdmin() {
     if (creds && username === creds.username && password === creds.password) {
       document.getElementById('login-section').style.display = 'none';
       document.getElementById('admin-dashboard').style.display = 'block';
-      history.pushState(null, null, location.href); // এই লাইন যোগ করা হয়েছে
+      history.pushState(null, null, location.href);
     } else {
       alert('Invalid credentials');
     }
   });
 }
+
 
 
     // Show section and hide dashboard
