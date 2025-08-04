@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Panel with Multi-level Categories</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #121212;
+      color: #e0e0e0;
+    }
+    .container {
+      max-width: 800px;
+      margin: 30px auto;
+      background: #1e1e1e;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    }
+    h1 {
+      text-align: center;
+      color: #00e676;
+      margin-bottom: 20px;
+    }
+    h2 {
+      border-bottom: 2px solid #333;
+      padding-bottom: 5px;
+      margin-top: 20px;
+      color: #80cbc4;
+    }
+    input, button, select {
+      display: block;
+      width: 100%;
+      margin-bottom: 12px;
+      padding: 10px;
+      font-size: 15px;
+      border-radius: 6px;
+      border: 1px solid #333;
+      background: #2c2c2c;
+      color: #fff;
+      box-sizing: border-box;
+      transition: 0.3s ease;
+    }
+    input:focus, select:focus {
+      border-color: #00e676;
+      outline: none;
+      background: #333;
+    }
+    button {
+      background: #00e676;
+      color: #000;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #1de9b6;
+      transform: scale(1.02);
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    ul li {
+      margin: 8px 0;
+    }
+    ul li button {
+  background: #2979ff;
+  color: white;
+  width: 100%; /* পুরো প্রস্থে */
+  padding: 12px;
+  font-size: 15px;
+  font-weight: bold;
+  border-radius: 6px;
+  margin-top: 5px;
+  text-align: left; /* লেখা বাম দিকে */
+}
+ul li button {
+  width: 100%;
+  padding: 12px;
+  font-size: 15px;
+  font-weight: bold;
+  border-radius: 6px;
+  margin-top: 8px;
+  border: none;
+  cursor: pointer;
+  color: white;
+  transition: 0.3s ease;
+  text-align: left;
+}
+
+/* Individual button colors */
+ul li:nth-child(1) button { background: #00e676; }
+ul li:nth-child(1) button:hover { background: #1de9b6; }
+
+ul li:nth-child(2) button { background: #ff5252; }
+ul li:nth-child(2) button:hover { background: #ff867c; }
+
+ul li:nth-child(3) button { background: #7c4dff; }
+ul li:nth-child(3) button:hover { background: #b47cff; }
+
+ul li:nth-child(4) button { background: #ff9100; }
+ul li:nth-child(4) button:hover { background: #ffab40; }
+
+ul li:nth-child(5) button { background: #2979ff; }
+ul li:nth-child(5) button:hover { background: #448aff; }
+
+ul li:nth-child(6) button { background: #26c6da; }
+ul li:nth-child(6) button:hover { background: #4dd0e1; }
+
+ul li:nth-child(7) button { background: #9e9e9e; color: black; }
+ul li:nth-child(7) button:hover { background: #bdbdbd; }
+    pre {
+      background: #2c2c2c;
+      padding: 12px;
+      border-radius: 5px;
+      white-space: pre-wrap;
+      border: 1px solid #333;
+    }
+    label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+    #promo-list ul li {
+      background: #2c2c2c;
+      padding: 8px;
+      border-radius: 5px;
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <h1>Admin Panel</h1>
+
+    <!-- Login Section -->
+    <div id="login-section" class="section">
+      <h2>🔐 Admin Login</h2>
+      <input type="text" id="login-username" placeholder="Username" />
+      <input type="password" id="login-password" placeholder="Password" />
+      <button onclick="loginAdmin()">Login</button>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="admin-dashboard" style="display:none;">
+      <h2>Dashboard</h2>
+      <ul>
+        <li><button onclick="showSection('add-product-section')">➕ Add Product</button></li>
+        <li><button onclick="showSection('remove-product-section')">❌ Remove Product</button></li>
+        <li><button onclick="showSection('promo-section')">🎁 Promo Codes</button></li>
+        <li><button onclick="showSection('ban-user-section')">🚫 Ban User</button></li>
+        <li><button onclick="showSection('payment-links-section'); loadPaymentLinks();">💳 Payment Links</button></li>
+        <li><button onclick="showSection('update-admin-section'); loadAdminCredentials();">🛠 Update Admin Credentials</button></li>
+        <li><button onclick="logoutAdmin()">Logout</button></li>
+      </ul>
+    </div>
+
+    <!-- Add Product Section -->
+    <div id="add-product-section" class="section" style="display:none;">
+    <h2>➕ Add Product</h2>
+    <input type="text" id="product-image" placeholder="Image URL" />
+    <input type="text" id="product-name" placeholder="Product Name" />
+    <input type="text" id="product-desc" placeholder="Description" />
+    <input type="number" id="product-price" placeholder="Price" />
+    <input type="number" id="product-discount" placeholder="Discount (%)" />
+    <select id="category-select" onchange="loadSubCategories()">
+      <option value="">Select Main Category</option>
+      <option value="men fashion">Men Fashion</option>
+      <option value="women fashion">Women Fashion</option>
+    </select>
+    <select id="sub-category-select">
+      <option value="">Select Sub Category</option>
+    </select>
+    <button onclick="addProduct()">Add Product</button>
+    <button onclick="backToDashboard()">Back to Dashboard</button>
+  </div>
+
+
+    <!-- Remove Product Section -->
+    <div id="remove-product-section" class="section" style="display:none;">
+      <h2>❌ Remove Product</h2>
+      <input type="text" id="remove-product-id" placeholder="Product ID" />
+      <button onclick="loadProductToRemove()">Load</button>
+      <pre id="remove-product-details" style="white-space: pre-wrap;"></pre>
+      <button onclick="confirmRemoveProduct()">Delete</button>
+      <button onclick="backToDashboard()">Back to Dashboard</button>
+    </div>
+
+    <!-- Promo Codes Section -->
+    <div id="promo-section" class="section" style="display:none;">
+      <h2>🎁 Promo Codes</h2>
+      <div id="promo-list"></div>
+      <button onclick="showPromoForm()">➕ Add Promo</button>
+      <div id="promo-form" style="display:none;">
+        <input type="text" id="promo-code" placeholder="Promo Code" />
+        <select id="promo-type">
+          <option value="percent">Percentage</option>
+          <option value="amount">Amount</option>
+        </select>
+        <input type="number" id="promo-bonus" placeholder="Bonus" />
+        <input type="number" id="promo-upTo" placeholder="Up To" />
+        <input type="text" id="promo-for" placeholder="For (All/UserID)" />
+        <button onclick="addPromo()">Add Promo</button>
+      </div>
+      <button onclick="backToDashboard()">Back to Dashboard</button>
+    </div>
+
+    <!-- Ban User Section -->
+    <div id="ban-user-section" class="section" style="display:none;">
+      <h2>🚫 Ban User</h2>
+      <input type="text" id="ban-user-id" placeholder="User ID or Email" />
+      <button onclick="banUser()">Ban User</button>
+      <button onclick="backToDashboard()">Back to Dashboard</button>
+    </div>
+
+    <!-- Payment Links Section -->
+    <div id="payment-links-section" class="section" style="display:none;">
+      <h2>💳 Payment Links</h2>
+      <h3>Live Payment</h3>
+      <input type="text" id="live-link" placeholder="Live Payment Link" />
+      <label><input type="checkbox" id="live-on" /> Enable</label>
+      <button onclick="updatePaymentLink('live')">Update Live Link</button>
+
+      <h3>Manual Payment</h3>
+      <input type="text" id="manual-link" placeholder="Manual Payment Link" />
+      <label><input type="checkbox" id="manual-on" /> Enable</label>
+      <button onclick="updatePaymentLink('manual')">Update Manual Link</button>
+
+      <button onclick="backToDashboard()">Back to Dashboard</button>
+    </div>
+
+    <!-- Update Admin Credentials Section -->
+    <div id="update-admin-section" class="section" style="display:none;">
+      <h2>🛠 Update Admin Username & Password</h2>
+      <input type="text" id="new-admin-username" placeholder="New Username" />
+      <input type="password" id="new-admin-password" placeholder="New Password" />
+      <button onclick="updateAdminCredentials()">Update</button>
+      <button onclick="backToDashboard()">Back to Dashboard</button>
+    </div>
+
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
+  <script>
+    // Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyCljPMhDFq4z2CW-JEzMZgxdeAAkkxgDEM",
+      authDomain: "online-shope-de555.firebaseapp.com",
+      databaseURL: "https://online-shope-de555-default-rtdb.firebaseio.com",
+      projectId: "online-shope-de555",
+      storageBucket: "online-shope-de555.appspot.com",
+      messagingSenderId: "1026271402634",
+      appId: "1:1026271402634:web:46e6cb05f7013d15f06b73"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const menFashion = ["T-Shirts","Shirts","Polo Shirts","Panjabi","Jeans","Trousers","Joggers","Shorts","Jackets","Blazers","Hoodies","Sweaters","Vests","Innerwear","Pajamas","Suits","Sherwani","Waistcoats","Caps & Hats","Sunglasses","Watches","Belts","Wallets","Ties & Bow Ties","Shoes","Sandals","Loafers","Sneakers","Formal Shoes","Boots"];
+    const womenFashion = ["Sarees","Salwar Kameez","Kurtis","Tops & Tunics","T-Shirts","Shirts","Blouses","Gowns","Maxi Dresses","Skirts","Jeans","Palazzo Pants","Leggings","Trousers","Jackets","Hoodies","Sweaters","Shrugs","Nightwear","Lingerie","Hijabs & Scarves","Abayas","Dupattas","Bags & Purses","Clutches","Handbags","Jewelry Sets","Earrings","Necklaces","Bracelets","Bangles","Rings","Watches","Sunglasses","Belts","Shoes","Sandals","Heels","Flats","Wedges","Boots"];
+
+    // Login function
+    function loginAdmin() {
+      const username = document.getElementById('login-username').value.trim();
+      const password = document.getElementById('login-password').value.trim();
+      db.ref('adminCredentials').once('value').then(snapshot => {
+        const creds = snapshot.val();
+        if (creds && username === creds.username && password === creds.password) {
+          document.getElementById('login-section').style.display = 'none';
+          document.getElementById('admin-dashboard').style.display = 'block';
+        } else {
+          alert('Invalid credentials');
+        }
+      });
+    }
+
+    // Show section and hide dashboard
+    function showSection(sectionId) {
+      const sections = ['add-product-section','remove-product-section','promo-section','ban-user-section','payment-links-section','update-admin-section'];
+      sections.forEach(id => document.getElementById(id).style.display = (id === sectionId) ? 'block' : 'none');
+      document.getElementById('admin-dashboard').style.display = 'none';
+      if(sectionId === 'promo-section') {
+        document.getElementById('promo-form').style.display = 'none';
+        loadPromos();
+      }
+    }
+
+    // Back to dashboard
+    function backToDashboard() {
+      const sections = ['add-product-section','remove-product-section','promo-section','ban-user-section','payment-links-section','update-admin-section'];
+      sections.forEach(id => document.getElementById(id).style.display = 'none');
+      document.getElementById('admin-dashboard').style.display = 'block';
+    }
+    //SubCategori function
+    function loadSubCategories(){
+    const main = document.getElementById('category-select').value;
+    const sub = document.getElementById('sub-category-select');
+    sub.innerHTML = '<option value=\"\">Select Sub Category</option>';
+    let list = main==='men fashion'?menFashion: main==='women fashion'?womenFashion:[];
+    list.forEach(c=>{
+      const opt = document.createElement('option');
+      opt.value = c.toLowerCase();
+      opt.textContent = c;
+      sub.appendChild(opt);
+    });
+  }
+    // Add Product
+    function addProduct(){
+    const id = Date.now().toString();
+    const image = document.getElementById('product-image').value.trim();
+    const name = document.getElementById('product-name').value.trim();
+    const desc = document.getElementById('product-desc').value.trim();
+    const price = parseFloat(document.getElementById('product-price').value);
+    const discount = parseFloat(document.getElementById('product-discount').value);
+    const main = document.getElementById('category-select').value;
+    const sub = document.getElementById('sub-category-select').value;
+    if (!image||!name||!desc||isNaN(price)||isNaN(discount)||!main||!sub){
+      alert('Please fill all fields');return;
+    }
+    const productData = {image,name,desc,price,discount};
+    db.ref('products/'+id).set(productData)
+    .then(()=>{
+      const path = `categories/${main}/${sub}`;
+      return db.ref(path+'/'+id).set(true);
+    })
+    .then(()=>{
+      alert('Product added successfully');
+      clearAddProductForm();
+    })
+    .catch(()=>alert('Failed to add product'));
+  }
+
+   function clearAddProductForm(){
+    ['product-image','product-name','product-desc','product-price','product-discount'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('category-select').value='';
+    document.getElementById('sub-category-select').innerHTML='<option value=\"\">Select Sub Category</option>';
+  }
+
+  function loadProductToRemove(){
+    const id = document.getElementById('remove-product-id').value.trim();
+    if(!id){ alert('Enter Product ID'); return; }
+    db.ref('products/'+id).once('value').then(snap=>{
+      const p = snap.val();
+      if(p){
+        document.getElementById('remove-product-details').innerText =
+          `Name: ${p.name}\nPrice: ${p.price}৳\nDescription: ${p.desc}`;
+      } else { alert('Product not found'); document.getElementById('remove-product-details').innerText=''; }
+    });
+  }
+
+  async function removeProductFromAllCategories(productId) {
+  const snap = await db.ref('categories').once('value');
+  const data = snap.val();
+
+  async function recur(node, path) {
+    if (node && typeof node === 'object') {
+      for (const key of Object.keys(node)) {
+        if (key === productId) {
+          await db.ref(path + '/' + key).remove();
+        } else {
+          await recur(node[key], path + '/' + key);
+        }
+      }
+    }
+  }
+
+  await recur(data, 'categories');
+}
+
+
+  async function confirmRemoveProduct() {
+  const id = document.getElementById('remove-product-id').value.trim();
+  if (!id) {
+    alert('Enter Product ID');
+    return;
+  }
+  if (!confirm('Are you sure to delete this product?')) return;
+
+  try {
+    await db.ref('products/' + id).remove();
+    await removeProductFromAllCategories(id);
+    alert('Product deleted successfully');
+    document.getElementById('remove-product-details').innerText = '';
+    document.getElementById('remove-product-id').value = '';
+  } catch (error) {
+    console.error(error);
+    alert('Failed to delete product');
+  }
+}
+
+    // Promo Codes
+    function loadPromos() {
+      const promoListDiv = document.getElementById('promo-list');
+      promoListDiv.innerHTML = 'Loading...';
+      db.ref('promos').once('value')
+      .then(snapshot => {
+        const promos = snapshot.val();
+        if (!promos) {
+          promoListDiv.innerHTML = 'No promo codes found.';
+          return;
+        }
+        let html = '<ul>';
+        for (const id in promos) {
+          const p = promos[id];
+          html += `<li>
+            Code: ${p.code} | Type: ${p.type} | Bonus: ${p.bonus} | Up To: ${p.upTo} | For: ${p.for || 'All'}
+            <button onclick="deletePromo('${id}')">Delete</button>
+          </li>`;
+        }
+        html += '</ul>';
+        promoListDiv.innerHTML = html;
+      })
+      .catch(() => {
+        promoListDiv.innerHTML = 'Failed to load promo codes.';
+      });
+    }
+
+    function showPromoForm() {
+      document.getElementById('promo-form').style.display = 'block';
+    }
+
+    function addPromo() {
+      const code = document.getElementById('promo-code').value.trim();
+      const type = document.getElementById('promo-type').value;
+      const bonus = parseFloat(document.getElementById('promo-bonus').value);
+      const upTo = parseFloat(document.getElementById('promo-upTo').value);
+      const forUser = document.getElementById('promo-for').value.trim();
+
+      if(!code || isNaN(bonus) || isNaN(upTo)) {
+        alert('Please fill promo code, bonus and up to fields correctly');
+        return;
+      }
+
+      db.ref('promos/' + code).set({
+        code,
+        type,
+        bonus,
+        upTo,
+        for: forUser
+      })
+      .then(() => {
+        alert('Promo added');
+        document.getElementById('promo-form').style.display = 'none';
+        loadPromos();
+        clearPromoForm();
+      })
+      .catch(() => alert('Failed to add promo'));
+    }
+
+    function deletePromo(id) {
+      if(!confirm('Are you sure to delete this promo code?')) return;
+      db.ref('promos/' + id).remove()
+      .then(() => {
+        alert('Promo code deleted');
+        loadPromos();
+      })
+      .catch(() => alert('Failed to delete promo code'));
+    }
+
+    function clearPromoForm() {
+      document.getElementById('promo-code').value = '';
+      document.getElementById('promo-bonus').value = '';
+      document.getElementById('promo-upTo').value = '';
+      document.getElementById('promo-for').value = '';
+      document.getElementById('promo-type').value = 'percent';
+    }
+
+    // Ban User
+    function banUser() {
+      const uid = document.getElementById('ban-user-id').value.trim();
+      if(!uid) {
+        alert('Enter User ID or Email');
+        return;
+      }
+      db.ref('users/' + uid + '/blocked').set(true)
+      .then(() => alert('User banned'))
+      .catch(() => alert('Failed to ban user'));
+    }
+
+    // Payment Links
+    function loadPaymentLinks() {
+      db.ref('paymentLinks').once('value').then(snapshot => {
+        const links = snapshot.val();
+        if (links) {
+          if (links.live) {
+            document.getElementById('live-link').value = links.live.link || '';
+            document.getElementById('live-on').checked = !!links.live.on;
+          }
+          if (links.manual) {
+            document.getElementById('manual-link').value = links.manual.link || '';
+            document.getElementById('manual-on').checked = !!links.manual.on;
+          }
+        }
+      });
+    }
+
+    function updatePaymentLink(type) {
+      const link = document.getElementById(type + '-link').value.trim();
+      const on = document.getElementById(type + '-on').checked;
+
+      if(!link) {
+        alert('Please enter payment link');
+        return;
+      }
+
+      db.ref('paymentLinks/' + type).set({ link, on })
+      .then(() => alert(`${type} link updated`))
+      .catch(() => alert('Failed to update payment link'));
+    }
+
+    // Update Admin Credentials
+    function loadAdminCredentials() {
+      db.ref('adminCredentials').once('value').then(snapshot => {
+        const creds = snapshot.val();
+        if(creds) {
+          document.getElementById('new-admin-username').value = creds.username || '';
+          document.getElementById('new-admin-password').value = creds.password || '';
+        }
+      });
+    }
+
+    function updateAdminCredentials() {
+      const newUsername = document.getElementById('new-admin-username').value.trim();
+      const newPassword = document.getElementById('new-admin-password').value.trim();
+
+      if(!newUsername || !newPassword) {
+        alert('Please fill both username and password');
+        return;
+      }
+
+      db.ref('adminCredentials').set({
+        username: newUsername,
+        password: newPassword
+      })
+      .then(() => {
+        alert('Admin credentials updated successfully');
+        backToDashboard();
+      })
+      .catch(() => alert('Failed to update admin credentials'));
+    }
+
+    // Logout
+    function logoutAdmin() {
+  // ফর্ম ফিল্ড গুলো খালি করো
+  document.getElementById('login-username').value = '';
+  document.getElementById('login-password').value = '';
+
+  // ড্যাশবোর্ড ও সব সেকশন গুলো লুকাও
+  document.getElementById('admin-dashboard').style.display = 'none';
+
+  const sections = [
+    'add-product-section',
+    'remove-product-section',
+    'promo-section',
+    'ban-user-section',
+    'payment-links-section',
+    'update-admin-section'
+  ];
+  sections.forEach(id => {
+    document.getElementById(id).style.display = 'none';
+  });
+
+  // শুধু লগইন সেকশন দেখাও
+  document.getElementById('login-section').style.display = 'block';
+}
+
+  </script>
+</body>
+</html>
